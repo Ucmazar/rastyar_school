@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>حذف مضمون</h2>
+    <p>آیا از حذف مضمون "{{ subject.name }}" مطمئن هستید؟</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">حذف</button>
+        <a href="{% url 'subject_list' %}" class="btn btn-secondary">انصراف</a>
+    </form>
+</div>
+{% endblock %}

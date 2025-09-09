@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load jformat %}
+{% block title %}لیست شاگردان{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5">📚 لیست شاگردان</h2>
+      <div class="">
+        <a href="{% url 'create_student' %}" class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-circle"></i> اضافه کردن شاگرد
+        </a>
+        <a href="{% url 'upload_students' %}" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-plus-circle"></i> آپلود فایل اکسل شاگرد
+        </a>
+      </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover table-bordered align-middle small">
+        <thead class="table-dark">
+          <tr>
+            <th>شماره</th>
+            <th>نمبر اساس</th>
+            <th>نام کامل</th>
+            <th>نام پدر</th>
+            <th>نام پدر کلان</th>
+            <th>صنف</th>
+            <th>شماره تماس</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <!-- شماره مسلسل -->
+            <td>{{ forloop.counter }}</td>
+            <td>{{ student.student_number }}</td>
+            <td>
+              <a href="{% url 'student_profile' student.pk %}">
+                <strong>{{ student.user.first_name }} {{ student.user.last_name }}</strong>
+              </a>
+            </td>
+            <td>{{ student.father_name }}</td>
+            <td>{{ student.grandfather_name }}</td>
+            <td>
+              {% for cls in student.classes.all %}
+                {{ cls.name }}{% if not forloop.last %}, {% endif %}
+              {% empty %}
+                -
+              {% endfor %}
+            </td>
+
+            <td>{{ student.phone }}</td>
+
+            <td>
+              <a href="{% url 'edit_student' pk=student.id %}" class="btn btn-sm btn-warning mb-1">
+                <i class="bi bi-pencil-square"></i> ویرایش
+              </a>
+              <a href="{% url 'delete_student' pk=student.id %}" class="btn btn-sm btn-danger mb-1">
+                <i class="bi bi-trash"></i> حذف
+              </a>
+              <!-- دکمه باز کردن مدال -->
+              <button type="button" class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#reportCardModal{{ student.id }}">
+                <i class="bi bi-file-earmark-text"></i> کارنامه
+              </button>
+
+             
+<!-- Modal -->
+<div class="modal fade" id="reportCardModal{{ student.id }}" tabindex="-1" aria-labelledby="reportCardModalLabel{{ student.id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="GET" action="{% url 'student_report_card' student.id %}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reportCardModalLabel{{ student.id }}">انتخاب امتحانات برای {{ student.user.full_name_display }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {% for exam in exam_types %}
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="exams" value="{{ exam.id }}" id="examCheck{{ exam.id }}">
+            <label class="form-check-label" for="examCheck{{ exam.id }}">
+              {{ exam.name }} - سال: {{ exam.academic_year }} ({{ exam.academic_year_days }} روز)
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">نمایش کارنامه</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+            
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center">هیچ شاگردی یافت نشد.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <a href="{% url 'home' %}" class="btn btn-secondary btn-sm mt-3">
+      <i class="bi bi-arrow-left-circle"></i> بازگشت به داشبورد
+    </a>
+  </div>
+</div>
+
+
+{% endblock %}

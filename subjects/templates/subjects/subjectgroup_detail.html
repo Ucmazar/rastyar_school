@@ -1,0 +1,15 @@
+<!-- templates/subjects/subjectgroup_detail.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>مضامین گروه: {{ group.name }}</h3>
+  <ul class="list-group">
+    {% for subject in subjects %}
+      <li class="list-group-item">{{ subject.name }}</li>
+    {% empty %}
+      <li class="list-group-item text-muted">هیچ مضمونی در این گروه وجود ندارد.</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'subjectgroup_list' %}" class="btn btn-secondary mt-3">بازگشت</a>
+</div>
+{% endblock %}

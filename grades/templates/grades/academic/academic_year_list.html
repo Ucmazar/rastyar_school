@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h3>مدیریت سال‌های تحصیلی</h3>
+    <a href="{% url 'academic_year_add' %}" class="btn btn-success mb-3">➕ افزودن سال جدید</a>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>سال</th>
+                <th>تعداد روزها</th>
+                <th>توضیحات</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for year in years %}
+            <tr>
+                <td>{{ year.year }}</td>
+                <td>{{ year.total_days }}</td>
+                <td>{{ year.description }}</td>
+                <td>
+                    <a href="{% url 'academic_year_edit' year.id %}" class="btn btn-sm btn-primary">ویرایش</a>
+                    <a href="{% url 'academic_year_delete' year.id %}" class="btn btn-sm btn-danger">حذف</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">هیچ سالی ثبت نشده است</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

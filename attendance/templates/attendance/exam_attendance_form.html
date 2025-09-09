@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>ثبت حاضری امتحان: {{ exam_type.name }} | صنف: {{ school_class.name }}</h3>
+
+<form method="post">
+    {% csrf_token %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>شاگرد</th>
+                <th>حاضر</th>
+                <th>غایب</th>
+                <th>مریض</th>
+                <th>رخصت</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.user.get_full_name }}</td>
+                <td>
+                    <input type="number" name="present_{{ student.id }}" min="0"
+                           value="{{ existing_attendance|dictget:student.id.present_days|default:0 }}">
+                </td>
+                <td>
+                    <input type="number" name="absent_{{ student.id }}" min="0"
+                           value="{{ existing_attendance|dictget:student.id.absent_days|default:0 }}">
+                </td>
+                <td>
+                    <input type="number" name="sick_{{ student.id }}" min="0"
+                           value="{{ existing_attendance|dictget:student.id.sick_days|default:0 }}">
+                </td>
+                <td>
+                    <input type="number" name="leave_{{ student.id }}" min="0"
+                           value="{{ existing_attendance|dictget:student.id.leave_days|default:0 }}">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">ثبت حاضری</button>
+</form>
+{% endblock %}

@@ -1,0 +1,371 @@
+{% load static %}
+{% load jformat %}
+
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+  <meta charset="UTF-8">
+  <title>چاپ لیست دانش‌آموزان</title>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet"
+    type="text/css" />
+  <style>
+    body {
+      font-family: 'Vazir', Tahoma, sans-serif;
+      /* فونت وزیر */
+      direction: rtl;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+
+    .tables-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+      padding: 0;
+      gap: 1cm;
+      /* فاصله بین دو جدول */
+    }
+
+    .table-block {
+      width: calc(50% - 0.5cm);
+      page-break-inside: avoid;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+    }
+
+    th,
+    td {
+      border: 0.5px solid rgb(36, 34, 34);
+      padding: 1px 0px;
+      height: 0.5cm;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 10px;
+      font-weight: bold;
+      word-wrap: break-word;
+    }
+
+
+    
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+      font-size: 9px;
+    }
+
+    /* ستون شماره */
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 0.8cm;
+      /* کوچکتر برای شماره */
+    }
+
+    /* ستون نام */
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 3cm;          /* اندازه خودکار */
+    }
+    
+    /* ستون ولد */
+    th:nth-child(3),
+    td:nth-child(3){
+      width: 3cm;          /* اندازه خودکار */
+    }
+    
+
+    
+    /* ستون ولدیت */
+    th:nth-child(4),
+    td:nth-child(4) {
+      width: 3cm;          /* اندازه خودکار */
+    }
+    
+
+    /* ستون شماره اساس */
+    th:nth-child(5),
+    td:nth-child(5) {
+      width: 2.5cm;
+    }
+
+    /* ستون حاضر */
+th:nth-child(6),
+td:nth-child(6) {
+  width: 0.9cm;
+  min-width: 0.9cm;
+  max-width: 0.9cm;
+}
+
+/* ستون غیر حاضر */
+th:nth-child(7),
+td:nth-child(7) {
+  width: 0.9cm;
+  min-width: 0.9cm;
+  max-width: 0.9cm;
+}
+
+/* ستون مریض */
+th:nth-child(8),
+td:nth-child(8) {
+  width: 0.9cm;
+  min-width: 0.9cm;
+  max-width: 0.9cm;
+}
+
+/* ستون رخصت */
+th:nth-child(9),
+td:nth-child(9) {
+  width: 0.9cm;
+  min-width: 0.9cm;
+  max-width: 0.9cm;
+}
+
+    /* ستون ملاحظات */
+    th:nth-child(10),
+    td:nth-child(10) {
+      width: 1.2cm;
+    }
+
+
+    /* متن عمودی برای ستون‌های وضعیت */
+    th:nth-child(n+4),
+    td:nth-child(n+6) {
+      white-space: nowrap;
+      writing-mode: vertical-rl;
+      vertical-align: middle;
+      padding: 0;
+    }
+
+    /* ستون شماره با متن عمودی */
+    th.col-number,
+    td.col-number {
+      width: 0.5cm;
+      height: 0.5cm;
+      white-space: nowrap;
+      writing-mode: vertical-rl;
+      vertical-align: middle;
+      padding: 0;
+    }
+
+    /* هدر بالای جدول */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .header-text {
+      flex-grow: 1;
+      text-align: center;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .logo-left,
+    .logo-right {
+      width: 2cm;
+    }
+
+    .logo-left img,
+    .logo-right img {
+      width: 100%;
+      height: auto;
+    }
+
+    /* اطلاعات امتحان */
+    .exam-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      row-gap: 6px;
+      column-gap: 15px;
+      margin: 6px 0 10px;
+      font-size: 11pt;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        margin: 0;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 0;
+      }
+
+      .tables-container {
+        gap: 1cm;
+        padding: 0;
+      }
+
+      .table-block {
+        width: calc(50% - 0.5cm);
+        page-break-inside: avoid;
+      }
+
+      table {
+        width: 100%;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      th,
+      td {
+        border: 1px solid black;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+
+  <div class="tables-container">
+
+    <!-- بلاک اول -->
+    <div class="table-block">
+      <div class="header">
+        <div class="logo-left">
+          <img src="{% static 'logos/maharef.png' %}" alt="لوگو">
+        </div>
+        <div class="header-text">
+          <div>ریاست معارف ولایت بلخ</div>
+          <div>آمریت معارف شهر</div>
+          <div>لیسه عالی خصوصی نیکان</div>
+        </div>
+        <div class="logo-right">
+          <img src="{% static 'logos/nikan.png' %}" alt="لوگو">
+        </div>
+      </div>
+      <!-- هدر و اطلاعات امتحان -->
+      <div class="exam-info">
+        <div>امتحان: {{ exam_name }}</div>
+        <div>صنف: {{ school_class.name }}</div>
+        <div>ضوابط حاضری</div>
+        <div>معلم: </div>
+        <div>تاریخ: <span style="white-space: pre;">        /          / {{ "1404"|jformat }}</span></div>
+
+
+        <div>ممیز: </div>
+      </div>
+
+      <table>
+        <thead>
+            <tr>
+                <th rowspan="2" class="col-number">شماره</th>
+                <th colspan="3">شهرت</th>
+                <th rowspan="2">شماره اساس</th>
+                <th rowspan="2">حاضر</th>
+                <th rowspan="2">غیر حاضر</th>
+                <th rowspan="2">مریض</th>
+                <th rowspan="2">رخصت</th>
+                <th rowspan="2">ملاحظات</th>
+            </tr>
+            <tr>
+                <th>نام</th>
+                <th>ولد</th>
+                <th>ولدیت</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ forloop.counter|jformat }}</td>
+                <td>{{ student.user.get_full_name }}</td>        {# نام کامل شاگرد #}
+                <td>{{ student.father_name }}</td>               {# نام پدر شاگرد #}
+                <td>{{ student.grandfather_name }}</td>          {# نام پدربزرگ #}
+                <td>{{ student.student_number }}</td>            {# شماره اساس #}
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    </div>
+
+    <!-- بلاک دوم همان بلاک اول -->
+    <div class="table-block">
+      <div class="header">
+        <div class="logo-left">
+          <img src="{% static 'logos/maharef.png' %}" alt="لوگو">
+        </div>
+        <div class="header-text">
+          <div>ریاست معارف ولایت بلخ</div>
+          <div>آمریت معارف شهر</div>
+          <div>لیسه عالی خصوصی نیکان</div>
+        </div>
+        <div class="logo-right">
+          <img src="{% static 'logos/nikan.png' %}" alt="لوگو">
+        </div>
+      </div>
+      <!-- هدر و اطلاعات امتحان همانند بلاک اول -->
+      <div class="exam-info">
+        <div>امتحان: {{ exam_name }}</div>
+        <div>صنف: {{ school_class.name }}</div>
+        <div>ضوابط حاضری</div>
+        <div>معلم: </div>
+        <div>تاریخ: <span style="white-space: pre;">        /          / {{ "1404"|jformat }}</span></div>
+        
+
+
+
+        <div>ممیز: </div>
+      </div>
+
+      <table>
+        <thead>
+            <tr>
+                <th rowspan="2" class="col-number">شماره</th>
+                <th colspan="3">شهرت</th>
+                <th rowspan="2">شماره اساس</th>
+                <th rowspan="2">حاضر</th>
+                <th rowspan="2">غیر حاضر</th>
+                <th rowspan="2">مریض</th>
+                <th rowspan="2">رخصت</th>
+                <th rowspan="2">ملاحظات</th>
+            </tr>
+            <tr>
+                <th>نام</th>
+                <th>ولد</th>
+                <th>ولدیت</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ forloop.counter|jformat }}</td>
+                <td>{{ student.user.get_full_name }}</td>        {# نام کامل شاگرد #}
+                <td>{{ student.father_name }}</td>               {# نام پدر شاگرد #}
+                <td>{{ student.grandfather_name }}</td>          {# نام پدربزرگ #}
+                <td>{{ student.student_number }}</td>            {# شماره اساس #}
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    </div>
+
+
+  </div>
+</body>
+
+</html>

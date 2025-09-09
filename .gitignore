@@ -1,0 +1,51 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.pyo
+
+# --- Django ---
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+local_settings.py
+
+# --- Environments ---
+.env
+venv/
+ENV/
+env/
+.venv/
+
+# --- IDEs / Editors ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+
+# --- Test / Coverage ---
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+htmlcov/
+
+# --- Migrations Cache ---
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.pyo
+
+# اما خود فایل‌های migration باید بمانند
+!*/migrations/__init__.py

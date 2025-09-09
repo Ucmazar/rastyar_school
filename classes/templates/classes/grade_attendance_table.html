@@ -1,0 +1,54 @@
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>نام شاگرد</th>
+            {% for subject in subjects %}
+            <th>{{ subject.name }}</th>
+            {% endfor %}
+            <th>حضور</th>
+            <th>غیاب</th>
+            <th>مرخصی بیماری</th>
+            <th>مرخصی</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.user.get_full_name }}</td>
+
+            {% for subject in subjects %}
+            <td>
+                <input type="number" class="form-control grade-input" 
+                       data-student="{{ student.id }}" 
+                       data-subject="{{ subject.id }}" 
+                       value="{{ student.grades.filter(subject=subject, exam_type=exam).first.score|default_if_none:'' }}">
+            </td>
+            {% endfor %}
+
+            {% comment %} حضور و غیاب {% endcomment %}
+            {% with attendance=student.examattendance_set.filter(school_class=school_class, exam_type=exam).first %}
+            <td>
+                <input type="number" class="form-control attendance-input" 
+                       data-student="{{ student.id }}" 
+                       data-type="present" value="{{ attendance.present_days|default:0 }}">
+            </td>
+            <td>
+                <input type="number" class="form-control attendance-input" 
+                       data-student="{{ student.id }}" 
+                       data-type="absent" value="{{ attendance.absent_days|default:0 }}">
+            </td>
+            <td>
+                <input type="number" class="form-control attendance-input" 
+                       data-student="{{ student.id }}" 
+                       data-type="sick" value="{{ attendance.sick_days|default:0 }}">
+            </td>
+            <td>
+                <input type="number" class="form-control attendance-input" 
+                       data-student="{{ student.id }}" 
+                       data-type="leave" value="{{ attendance.leave_days|default:0 }}">
+            </td>
+            {% endwith %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

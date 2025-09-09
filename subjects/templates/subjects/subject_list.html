@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}لیست مضامین{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5">📚 لیست مضامین</h2>
+      <p style="font-size: 14px; margin-right:10px">برای جلوگیری از وقت باید مضامین وارد شده خویش را <a href="{% url 'subjectgroup_list' %}"> دسته بندی </a> کنید.</p>
+
+      <a href="{% url 'subject_create' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle"></i> اضافه کردن مضمون
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover table-bordered align-middle small">
+        <thead class="table-dark text-center">
+          <tr>
+            <th>شماره</th>
+            <th>نام مضمون</th>
+            <th>توضیحات</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for subject in subjects %}
+          <tr>
+            <td class="text-center">{{ forloop.counter }}</td>
+            <td>{{ subject.name }}</td>
+            <td>{{ subject.description|default:"—" }}</td>
+           
+          
+            <td class="text-center">
+              <a href="{% url 'subject_update' subject.pk %}" class="btn btn-sm btn-warning me-1">
+                <i class="bi bi-pencil-square"></i>
+              </a>
+              <a href="{% url 'subject_delete' subject.pk %}" class="btn btn-sm btn-danger"
+                 onclick="return confirm('آیا مطمئن هستید که می‌خواهید این مضمون را حذف کنید؟')">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-muted">هیچ مضمون ثبت نشده است.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <a href="{% url 'home' %}" class="btn btn-secondary btn-sm mt-3">
+      <i class="bi bi-arrow-left-circle"></i> بازگشت به داشبورد
+    </a>
+    <a href="{% url 'subjectgroup_list' %}" class="btn btn-primary btn-sm mt-3">  گروه مضامین </a>
+  </div>
+</div>
+{% endblock %}

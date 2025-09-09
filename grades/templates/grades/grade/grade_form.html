@@ -1,0 +1,21 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $("#id_school_class").change(function(){
+        var classId = $(this).val();
+        $.ajax({
+            url: "{% url 'ajax_load_exam_types' %}",
+            data: {
+                'class_id': classId
+            },
+            dataType: 'json',
+            success: function(data){
+                $("#id_exam_type").html('<option value="">---------</option>');
+                $.each(data, function(index, exam){
+                    $("#id_exam_type").append('<option value="'+exam.id+'">'+exam.name+'</option>');
+                });
+            }
+        });
+    });
+});
+</script>

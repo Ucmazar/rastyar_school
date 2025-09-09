@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load form_tags %}
+{% load jformat %}
+
+{% block title %}
+  {% if class_instance %}ویرایش کلاس{% else %}ایجاد کلاس{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+          {% if class_instance %}ویرایش کلاس: {{ class_instance.name }}
+          {% else %}ایجاد کلاس جدید{% endif %}
+        </h5>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" class="row g-3">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          <!-- نام کلاس -->
+          <div class="col-md-6">
+            {{ form.name.label_tag }}
+            {{ form.name|add_class:"form-control form-control-sm" }}
+            {% if form.name.errors %}
+              <div class="text-danger small">{{ form.name.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- درجه کلاس -->
+          <div class="col-md-6">
+            {{ form.grade.label_tag }}
+            {{ form.grade|add_class:"form-control form-control-sm" }}
+            {% if form.grade.errors %}
+              <div class="text-danger small">{{ form.grade.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- معلم -->
+          <div class="col-md-6">
+            {{ form.teacher.label_tag }}
+            {{ form.teacher|add_class:"form-select form-select-sm" }}
+            {% if form.teacher.errors %}
+              <div class="text-danger small">{{ form.teacher.errors }}</div>
+            {% endif %}
+          </div>
+
+        
+          
+          <!-- گروه مضامین -->
+          <div class="col-md-6">
+            {{ form.subject_group.label_tag }}
+            {{ form.subject_group|add_class:"form-select form-select-sm" }}
+            {% if form.subject_group.errors %}
+              <div class="text-danger small">{{ form.subject_group.errors }}</div>
+            {% endif %}
+          </div>
+
+
+          <!-- شاگردان (چک‌باکس چندستونه) -->
+          <div class="col-12">
+            <label>شاگردان:</label>
+            <div class="d-flex flex-wrap gap-2 border p-2 rounded" style="max-height: 250px; overflow-y: auto;">
+              {% for checkbox in form.students %}
+                <div class="form-check" style="min-width: 150px;">
+                  {{ checkbox.tag }}
+                  <label class="form-check-label">{{ checkbox.choice_label }}</label>
+                </div>
+              {% endfor %}
+            </div>
+            {% if form.students.errors %}
+              <div class="text-danger small mt-1">{{ form.students.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- دکمه‌ها -->
+          <div class="col-12 mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-success btn-sm">
+              <i class="bi bi-check-circle"></i>
+              {% if class_instance %}ذخیره تغییرات{% else %}ثبت کلاس{% endif %}
+            </button>
+            <a href="{% url 'class_list' %}" class="btn btn-secondary btn-sm">
+              بازگشت به لیست کلاس‌ها
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

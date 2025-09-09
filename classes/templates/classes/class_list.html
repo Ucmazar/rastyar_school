@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+{% block title %}لیست کلاس‌ها{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5">🏫 لیست کلاس‌ها</h2>
+      <a href="{% url 'create_class' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle"></i> ایجاد کلاس جدید
+      </a>
+    </div>
+
+    <div class="">
+      <table class="table table-sm table-striped table-hover table-bordered align-middle small">
+        <thead class="table-dark">
+          <tr>
+            <th>شماره</th>
+            <th>نام کلاس</th>
+            <th>درجه</th>
+            <th>معلم</th>
+            <th>تعداد شاگردان</th>
+            <th>گروه مضامین</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for class in classes %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ class.name }}</td>
+            <td>{{ class.grade }}</td>
+            <td>
+              {% if class.teacher and class.teacher.user %}
+              {{ class.teacher.user.full_name_display }}
+              {% else %}
+              –
+              {% endif %}
+            </td>
+
+            <td>{{ class.students.count }}</td>
+            <td>
+              {% if class.subject_group %}
+              {{ class.subject_group.name }}
+              {% else %}
+              –
+              {% endif %}
+            </td>
+            
+            <td>
+              <div class="d-flex align-items-center">
+                <!-- دکمه‌های اصلی که مهم هستند -->
+                <a href="{% url 'update_class' class.pk %}" class="btn btn-sm btn-warning me-1" title="ویرایش">
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+                <a href="{% url 'delete_class' class.pk %}" class="btn btn-sm btn-danger me-1" title="حذف">
+                  <i class="bi bi-trash"></i>
+                </a>
+            
+                <!-- دکمه سه نقطه برای بقیه عملیات -->
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ class.pk }}" data-bs-toggle="dropdown" aria-expanded="false">
+                   عملیات بیشتر  
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ class.pk }}">
+                    <li>
+                      <a class="dropdown-item" href="{% url 'export_class_shoqaA4' class.pk %}">
+                        <i class="bi bi-file-earmark-excel"></i> اکسل شقه
+                      </a>
+                    </li>
+                    <li>
+                      <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#examModalShoqa{{ class.pk }}">
+                        <i class="bi bi-printer"></i> پرینت شقه
+                      </button>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="{% url 'export_class_zawabetA4' class.pk %}">
+                        <i class="bi bi-file-earmark-excel"></i> اکسل ضوابط
+                      </a>
+                    </li>
+                    <li>
+                      <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#examModalZawabet{{ class.pk }}">
+                        <i class="bi bi-printer"></i> پرینت ضوابط
+                      </button>
+                    </li>
+                    <li>
+                      <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#gradeAttendanceModal{{ class.pk }}">
+                        <i class="bi bi-journal-check"></i> ثبت نمره
+                      </button>
+                    </li>
+                    <li>
+                      <button class="dropdown-item" disabled>
+                        <i class="bi bi-clock"></i> کارنامه
+                      </button>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="{% url 'download_class_qr' class.id %}">
+                        <i class="bi bi-qr-code"></i> QR
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </td>
+            
+<!--مدال ثبت نمره  -->
+<div class="modal fade" id="gradeAttendanceModal{{ class.pk }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">انتخاب امتحان - {{ class.name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <select id="examSelect{{ class.pk }}" class="form-select">
+          <option value="">-- انتخاب امتحان --</option>
+          {% for exam in exams %}
+            <option value="{{ exam.id }}">{{ exam.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="goToGradeEntry({{ class.pk }})">
+          نمایش جدول نمره
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+            
+
+            <!-- مدال شقه -->
+            <div class="modal fade" id="examModalShoqa{{ class.pk }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">انتخاب امتحان برای شقه صنف : {{ class.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form id="printForm{{ class.pk }}">
+                      {% csrf_token %}
+                      <label for="exam_id{{ class.pk }}">انتخاب امتحان:</label>
+                      <select name="exam_id" id="exam_id{{ class.pk }}" required class="form-select">
+                        <option value="">-- انتخاب امتحان --</option>
+                        {% for exam in exams %}
+                        <option value="{{ exam.id }}">{{ exam.name }}</option>
+                        {% endfor %}
+                      </select>
+                      <!-- دکمه پرینت داخل مدال -->
+                      <button type="button" class="btn btn-primary mt-2" data-class-id="{{ class.pk }}"
+                        onclick="printClassShoqaFromButton(this)">
+                        پرینت شقه
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- مدال ضوابط -->
+            <div class="modal fade" id="examModalZawabet{{ class.pk }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">انتخاب امتحان برای ضوابط صنف: {{ class.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form id="printForm{{ class.pk }}">
+                      {% csrf_token %}
+                      <label for="exam_id{{ class.pk }}">انتخاب امتحان:</label>
+                      <!-- مدال ضوابط -->
+                      <select id="exam_id_zawabet{{ class.pk }}" class="form-select">
+                        <option value="">-- انتخاب امتحان --</option>
+                        {% for exam in exams %}
+                        <option value="{{ exam.id }}">{{ exam.name }}</option>
+                        {% endfor %}
+                      </select>
+
+                      <!-- دکمه پرینت داخل مدال -->
+                      <button type="button" class="btn btn-primary mt-2" data-class-id="{{ class.pk }}"
+                        onclick="printClassZawabetFromButton(this)">
+                        پرینت ضوابط
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center">هیچ کلاسی ثبت نشده است.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <a href="{% url 'home' %}" class="btn btn-secondary btn-sm mt-3">
+      <i class="bi bi-arrow-left-circle"></i> بازگشت به داشبورد
+    </a>
+  </div>
+</div>
+
+
+
+<script>
+  
+
+  function goToGradeEntry(classId) {
+    const select = document.getElementById('examSelect' + classId);
+    if (!select) {
+        alert("خطا: امتحان پیدا نشد.");
+        return;
+    }
+
+    const examId = select.value;
+    if (!examId) {
+        alert("لطفا امتحان را انتخاب کنید.");
+        return;
+    }
+
+    // ریدایرکت با query string
+    window.location.href = `/grades/entry/?class=${classId}&exam_type=${examId}`;
+}
+
+
+  // تابع برای bind کردن eventهای input بعد از بارگذاری جدول
+  function bindGradeAttendanceEvents() {
+    // تغییر نمره
+    $('.grade-input').off('change').on('change', function () {
+      const $this = $(this);
+      const studentId = $this.data('student');
+      const subjectId = $this.data('subject');
+      const score = $this.val();
+      send_grade_ajax(studentId, subjectId, score, $this);
+    });
+
+    // تغییر حضور و غیاب
+    $('.attendance-input').off('change').on('change', function () {
+      const $this = $(this);
+      const studentId = $this.data('student');
+
+      const present = $('input.attendance-input[data-student="' + studentId + '"][data-type="present"]').val() || 0;
+      const absent = $('input.attendance-input[data-student="' + studentId + '"][data-type="absent"]').val() || 0;
+      const sick = $('input.attendance-input[data-student="' + studentId + '"][data-type="sick"]').val() || 0;
+      const leave = $('input.attendance-input[data-student="' + studentId + '"][data-type="leave"]').val() || 0;
+
+      send_attendance_ajax(studentId, present, absent, sick, leave, $this);
+    });
+  }
+
+  function printClassZawabetFromButton(btn) {
+
+    const classId = btn.dataset.classId;
+    const select = document.getElementById('exam_id_zawabet' + classId);
+    if (!select) {
+      alert("خطا: امتحان پیدا نشد.");
+      return;
+    }
+
+
+    console.log("ClassId:", classId);
+    console.log("Select element:", select);
+    console.log("Exam value:", select ? select.value : "Select not found");
+    const examId = select.value;
+
+    if (!examId) {
+      alert("لطفاً یک امتحان انتخاب کنید.");
+      return;
+    }
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch("{% url 'class_print_zawabet' 0 %}".replace('/0/', '/' + classId + '/'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': csrfToken
+      },
+      body: new URLSearchParams({ 'exam_id': examId })
+    })
+      .then(r => r.text())
+      .then(html => {
+        // باز کردن صفحه پرینت
+        const w = window.open('', '_blank');
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        w.print();
+        w.close();
+
+        // بستن مدال مربوطه
+        const modalEl = document.getElementById('examModal' + classId);
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) {
+          modalInstance.hide();
+        }
+      })
+      .catch(err => console.error(err));
+  }
+
+
+  function printClassShoqaFromButton(btn) {
+    const classId = btn.dataset.classId;
+    const select = document.getElementById('exam_id' + classId);
+    if (!select) {
+      alert("خطا: امتحان پیدا نشد.");
+      return;
+    }
+
+    const examId = select.value;
+
+
+
+    if (!examId) {
+      alert("لطفاً یک امتحان انتخاب کنید.");
+      return;
+    }
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch("{% url 'class_print_shoqa' 0 %}".replace('/0/', '/' + classId + '/'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': csrfToken
+      },
+      body: new URLSearchParams({ 'exam_id': examId })
+    })
+      .then(r => r.text())
+      .then(html => {
+        // باز کردن صفحه پرینت
+        const w = window.open('', '_blank');
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        w.print();
+        w.close();
+
+        // بستن مدال مربوطه
+        const modalEl = document.getElementById('examModal' + classId);
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) {
+          modalInstance.hide();
+        }
+      })
+      .catch(err => console.error(err));
+  }
+
+
+</script>
+
+{% endblock %}

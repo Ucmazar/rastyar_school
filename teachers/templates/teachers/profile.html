@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% load jformat %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="row g-0">
+            <!-- تصویر معلم -->
+            <div class="col-md-4 text-center p-4 bg-light rounded shadow-sm">
+                {% if teacher.profile_image %}
+                    <img src="{{ teacher.profile_image.url }}" 
+                         alt="Profile"
+                         class="img-fluid rounded-circle shadow-sm"
+                         style="width: 150px; height: 150px; object-fit: cover;" />
+                {% else %}
+                    <img src="{% static 'dist/assets/img/default_pic.png' %}" 
+                         alt="Default"
+                         class="img-fluid rounded-circle shadow-sm"
+                         style="width: 150px; height: 150px; object-fit: cover;" />
+                {% endif %}
+
+                <h4 class="mt-3 fw-bold">{{ teacher.user.get_full_name }}</h4>
+                <p class="text-muted">{{ teacher.user.username }}</p>
+                <p class="text-muted">Rastyar123</p>
+            </div>
+
+            <!-- اطلاعات معلم -->
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">مشخصات معلم</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>نام:</strong> {{ teacher.user.first_name }}</li>
+                        <li class="list-group-item"><strong>تخلص:</strong> {{ teacher.user.last_name }}</li>
+                        <li class="list-group-item"><strong>شماره تماس:</strong> {{ teacher.phone|default:"-" }}</li>
+                        <li class="list-group-item"><strong>آدرس:</strong> {{ teacher.address|default:"-" }}</li>
+                        <li class="list-group-item"><strong>نام پدر:</strong> {{ teacher.father_name|default:"-" }}</li>
+                        <li class="list-group-item"><strong>تاریخ تولد:</strong> 
+                            {% if teacher.date_of_birth %}
+                                {{ teacher.date_of_birth|jformat:"%Y/%m/%d" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>مضامین:</strong>
+                            {% if teacher.subjects.all %}
+                                <ul class="mb-0">
+                                    {% for subject in teacher.subjects.all %}
+                                        <li>{{ subject.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>تاریخ ایجاد حساب:</strong>
+                            {% if teacher.user.created_at %}
+                                {{ teacher.user.created_at|jformat:"%Y/%m/%d" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-footer bg-white d-flex justify-content-between">
+                    <a href="{% url 'teacher_list' %}" class="btn btn-secondary btn-sm">⬅ بازگشت</a>
+                    <a href="{% url 'edit_teacher' teacher.pk %}" class="btn btn-warning btn-sm">✏ ویرایش</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

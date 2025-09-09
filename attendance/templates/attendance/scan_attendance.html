@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>ثبت حضور با QR</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+<h2>اسکن QR برای ثبت حضور</h2>
+
+<div id="reader" style="width:100%; max-width:500px; margin-bottom:20px;"></div>
+<p id="result">نتیجه اسکن: </p>
+
+
+<a href="{% url 'home' %}">Back to home</a>
+
+
+<div id="attendance-log" class="p-3 border rounded bg-light mt-3" style="max-height:250px; overflow-y:auto;">
+    <h4>📋 لیست حضور امروز</h4>
+    <ul id="attendance-list" class="list-group"></ul>
+</div>
+
+<script>
+
+    function refreshAttendanceList(){
+        fetch("/attendance/latest/")
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById("attendance-list");
+            list.innerHTML = "";
+            data.records.forEach(r => {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
+                li.textContent = `${r.student} | صنف: ${r.class} | زمان: ${r.time}`;
+                list.appendChild(li);
+            });
+        });
+    }
+    
+    // بعد از ثبت موفق
+    function sendToken(token){
+        fetch("/attendance/mark-qr/", {
+            method: "POST",
+            headers: {"Content-Type": "application/json", "X-CSRFToken": csrftoken},
+            body: JSON.stringify({token: token})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                logStep("✅ حضور ثبت شد برای: " + data.student_name);
+                refreshAttendanceList(); // 🔄 لیست آپدیت شود
+            } else {
+                alert("❌ " + data.error);
+            }
+        });
+    }
+    
+    // هر 10 ثانیه اتومات رفرش شود
+    setInterval(refreshAttendanceList, 10000);
+    
+    // بار اول
+    refreshAttendanceList();
+
+    
+    
+function logStep(step){
+    console.log(step);
+    document.getElementById('result').innerText = step;
+}
+
+// ثبت حضور خودکار
+function sendAttendance(token){
+    logStep(`مرحله 1: ارسال توکن به سرور -> ${token}`);
+
+    fetch("{% url 'mark_attendance_qr' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ attendance_token: token })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === "success"){
+            logStep("✅ حضور ثبت شد برای: " + data.student);
+        } else if(data.status === "exists"){
+            logStep("⚠️ حضور قبلاً ثبت شده برای: " + data.student);
+        } else if(data.error){
+            logStep("❌ خطا: " + data.error);
+        } else {
+            logStep("❌ پاسخ غیرمنتظره از سرور");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        logStep("❌ خطا در ارسال اطلاعات به سرور!");
+    });
+}
+
+// اسکن QR با دوربین
+function onScanSuccess(decodedText, decodedResult) {
+    const token = decodedText.trim();
+    if(!token){
+        alert("QR نامعتبر است!");
+        return;
+    }
+
+    logStep("مرحله 0: QR خوانده شد -> " + token);
+
+    // ثبت خودکار حضور
+    sendAttendance(token);
+}
+
+// اجرای اسکنگر
+var html5QrcodeScanner = new Html5QrcodeScanner(
+    "reader", { fps: 10, qrbox: 300 }, false);
+html5QrcodeScanner.render(onScanSuccess);
+</script>
+
+</body>
+</html>

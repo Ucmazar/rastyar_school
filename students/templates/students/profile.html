@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+{% load static %}
+{% load jformat %}
+{% load grade_filters %}
+{% block head %}
+<style>
+  /* حذف دکمه‌های بالا و پایین فقط برای input های نمره */
+  .grade-input::-webkit-outer-spin-button,
+  .grade-input::-webkit-inner-spin-button,
+  .attendance-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+  }
+  
+  .grade-input,
+  .attendance-input {
+      -moz-appearance: textfield;
+      appearance: textfield;
+  }
+  </style>
+  
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="row g-0">
+            
+            <!-- تصویر شاگرد -->
+            <div class="col-md-4 text-center p-4 bg-light rounded shadow-sm">
+                {% if student.profile_image %}
+                    <img src="{{ student.profile_image.url }}" 
+                         alt="Profile"
+                         class="img-fluid rounded-circle shadow-sm"
+                         style="width: 150px; height: 150px; object-fit: cover;" />
+                {% else %}
+                    <img src="{% static 'dist/assets/img/default_pic.png' %}" 
+                         alt="Default"
+                         class="img-fluid rounded-circle shadow-sm"
+                         style="width: 150px; height: 150px; object-fit: cover;" />
+                {% endif %}
+
+                <h4 class="mt-3 fw-bold">{{ student.user.get_full_name }}</h4>
+                <p class="text-muted">{{ student.user.username }}</p>
+                <a href="{% url 'download_student_qr' student.id %}" class="btn btn-outline-primary btn-sm mt-2">
+                    📥 دانلود QR
+                </a>
+            </div>
+
+            <!-- اطلاعات شاگرد -->
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">مشخصات شاگرد</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>نام:</strong> {{ student.user.first_name }}</li>
+                        <li class="list-group-item"><strong>تخلص:</strong> {{ student.user.last_name }}</li>
+                        <li class="list-group-item"><strong>شماره تماس:</strong> {{ student.phone|default:"-" }}</li>
+                        <li class="list-group-item"><strong>نمبر اساس:</strong> {{ student.student_number|default:"-" }}</li>
+                        <li class="list-group-item"><strong>نام پدر:</strong> {{ student.father_name|default:"-" }}</li>
+                        <li class="list-group-item"><strong>نام پدر کلان:</strong> {{ student.grandfather_name|default:"-" }}</li>
+                        <li class="list-group-item"><strong>تاریخ تولد:</strong> 
+                            {% if student.date_of_birth %}
+                                {{ student.date_of_birth|jformat:"%Y/%m/%d" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>تاریخ ثبت‌نام:</strong> 
+                            {% if student.user.created_at %}
+                                {{ student.user.created_at|jformat:"%Y/%m/%d" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-footer bg-white d-flex justify-content-between">
+                    <a href="{% url 'student_list' %}" class="btn btn-secondary btn-sm">⬅ بازگشت</a>
+                    <a href="{% url 'edit_student' student.pk %}" class="btn btn-warning btn-sm">✏ ویرایش شاگرد</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <div class="card shadow-lg border-0 rounded-3 mt-4">
+            
+       
+                        
+        <!-- انتخاب صنف و امتحان -->
+        <div class="mt-4 mx-2">
+            {% if student.classes.exists %}
+                <form method="get" class="d-flex justify-content-center gap-3 mb-3 flex-wrap">
+                    <!-- انتخاب صنف -->
+                    <div class="flex-fill" style="max-width: 300px;">
+                        <select name="class" class="form-select w-100" onchange="this.form.submit()">
+                            <option value="">--- انتخاب صنف ---</option>
+                            {% for cls in user_classes %}
+                                <option value="{{ cls.id }}" {% if selected_class and cls.id == cls.id %}selected{% endif %}>
+                                    {{ cls.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            
+                    {% if selected_class %}
+                        <!-- انتخاب امتحان -->
+                        <div class="flex-fill" style="max-width: 300px;">
+                            <select name="exam" class="form-select w-100" onchange="this.form.submit()">
+                            <option value="">--- انتخاب امتحان ---</option>
+                            {% for exam in exam_types %}
+                                <option value="{{ exam.id }}" 
+                                {% if selected_exam and selected_exam.id == exam.id %}selected{% endif %}>
+                                {{ exam.name }} - سال: {{ exam.academic_year }} ({{ exam.academic_year_days }} روز)
+                                </option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+
+                </form>
+                {% else %}
+                    <p class="text-danger">❌ این شاگرد عضو هیچ صنفی نیست.</p>
+                {% endif %}
+                <tbody>
+                    {% for student in students %}
+                        <tr>
+                            <td>{{ student.full_name }}</td>
+                            {% for subject in subjects %}
+                                <td>
+                                    <input type="number" class="form-control grade-input"
+                                           data-student="{{ student.id }}"
+                                           data-subject="{{ subject.id }}"
+                                           value="{% for g in student.grades.all %}
+                                                     {% if g.subject.id == subject.id and g.school_class.id == selected_class.id and g.exam_type.id == selected_exam.id %}
+                                                         {{ g.score }}
+                                                     {% endif %}
+                                                  {% endfor %}">
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+
+                    
+            {% if selected_class and selected_exam and subjects %}
+            <table class="table table-bordered table-sm text-center ">
+                <thead>
+                    <tr>
+                        <th>مضمون</th>
+                        <th>نمره</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject.name }}</td>
+                        <td>
+                            <input type="number" step="0.01" class="form-control form-control-sm grade-input"
+                                data-student="{{ student.id }}"
+                                data-subject="{{ subject.id }}"
+                                value="{% for g in student.grades.all %}{% if g.subject == subject and g.school_class == selected_class and g.exam_type == selected_exam %}{{ g.score }}{% endif %}{% endfor %}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% if exam_attendance %}
+            <h5 class="mt-4">📌 حضور و غیاب در {{ selected_exam.name }}</h5>
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>حاضر</th>
+                        <th>غایب</th>
+                        <th>مریض</th>
+                        <th>رخصت</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="number" class="form-control form-control-sm attendance-input"
+                                   data-student="{{ student.id }}" data-type="present"
+                                   value="{{ exam_attendance.present_days }}" min="0">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm attendance-input"
+                                   data-student="{{ student.id }}" data-type="absent"
+                                   value="{{ exam_attendance.absent_days }}" min="0">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm attendance-input"
+                                   data-student="{{ student.id }}" data-type="sick"
+                                   value="{{ exam_attendance.sick_days }}" min="0">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm attendance-input"
+                                   data-student="{{ student.id }}" data-type="leave"
+                                   value="{{ exam_attendance.leave_days }}" min="0">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+            
+           
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function(){
+
+                function send_grade_ajax(studentId, subjectId, score, $input){
+                    const classId = "{{ selected_class.id }}";
+                    const examId = "{{ selected_exam.id }}";  // ← اصلاح شد
+                
+                    if(!examId){
+                        let msg = $('<span style="margin-left:5px;font-weight:bold;"></span>');
+                        $input.after(msg);
+                        msg.text('❌ امتحان انتخاب نشده!').css('color','red').fadeOut(3000, function(){ $(this).remove(); });
+                        return;
+                    }
+                
+                    let msg = $('<span style="margin-left:5px;font-weight:bold;"></span>');
+                    $input.after(msg);
+                
+                    $.ajax({
+                        url: "{% url 'grade_update_ajax' %}",
+                        type: "POST",
+                        data: {
+                            'student_id': studentId,
+                            'subject_id': subjectId,
+                            'class_id': classId,
+                            'exam_type_id': examId,  // ← نام کلید POST باید با view هماهنگ باشد
+                            'score': score || 0,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function(response){
+                            if(response.success){
+                                msg.text('✔ ثبت شد').css('color','green').fadeOut(2000, function(){ $(this).remove(); });
+                            } else {
+                                msg.text('❌ خطا: ' + response.message).css('color','red').fadeOut(4000, function(){ $(this).remove(); });
+                                console.error('❌ خطا: ' + response.message, response);
+                            }
+                        },
+                        error: function(xhr, status, error){
+                            msg.text('❌ ثبت با مشکل مواجه شد!').css('color','red').fadeOut(4000, function(){ $(this).remove(); });
+                            console.error('AJAX error', status, error, xhr.responseText);
+                        }
+                    });
+                }
+
+
+// ارسال حضور و غیاب به سرور
+function send_attendance_ajax(studentId, present, absent, sick, leave, $input){
+    const classId = "{{ selected_class.id }}";
+    const examId = "{{ selected_exam.id }}"; // سرور از exam_id استفاده می‌کند
+
+    if(!examId){
+        let msg = $('<span style="margin-left:5px;font-weight:bold;"></span>');
+        $input.after(msg);
+        msg.text('❌ امتحان انتخاب نشده!').css('color','red').fadeOut(3000, function(){ $(this).remove(); });
+        return;
+    }
+
+    // تبدیل به عدد
+    present = parseInt(present) || 0;
+    absent  = parseInt(absent) || 0;
+    sick    = parseInt(sick) || 0;
+    leave   = parseInt(leave) || 0;
+
+    let msg = $('<span style="margin-left:5px;font-weight:bold;"></span>');
+    $input.after(msg);
+
+    $.ajax({
+        url: "{% url 'attendance_update_ajax' %}",
+        type: "POST",
+        data: {
+            'student_id': studentId,
+            'class_id': classId,
+            'exam_id': examId,
+            'present': present,
+            'absent': absent,
+            'sick': sick,
+            'leave': leave,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response){
+            if(response.success){
+                msg.text('✔ ثبت شد').css('color','green').fadeOut(2000, function(){ $(this).remove(); });
+            } else {
+                msg.text('❌ خطا: ' + response.message).css('color','red').fadeOut(4000, function(){ $(this).remove(); });
+                console.error('❌ خطا: ' + response.message, response);
+            }
+        },
+        error: function(xhr, status, error){
+            msg.text('❌ ثبت با مشکل مواجه شد!').css('color','red').fadeOut(4000, function(){ $(this).remove(); });
+            console.error('AJAX Error:', status, error, xhr.responseText);
+        }
+    });
+}
+
+
+
+            // تغییر حضور و غیاب
+            $('.attendance-input').on('change', function(){
+                const $this = $(this);
+                const studentId = $this.data('student');
+
+                const present = $('input.attendance-input[data-student="'+studentId+'"][data-type="present"]').val() || 0;
+                const absent  = $('input.attendance-input[data-student="'+studentId+'"][data-type="absent"]').val() || 0;
+                const sick    = $('input.attendance-input[data-student="'+studentId+'"][data-type="sick"]').val() || 0;
+                const leave   = $('input.attendance-input[data-student="'+studentId+'"][data-type="leave"]').val() || 0;
+
+                send_attendance_ajax(studentId, present, absent, sick, leave, $this);
+            });
+
+            // تغییر نمره
+            $('.grade-input').on('change', function(){
+                const $this = $(this);
+                const studentId = $this.data('student');
+                const subjectId = $this.data('subject');
+                const score = $this.val();
+
+                send_grade_ajax(studentId, subjectId, score, $this);
+            });
+
+        });
+        
+        </script>
+</div>
+</div>
+{% endblock %}

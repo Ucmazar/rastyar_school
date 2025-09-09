@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}
+  {% if form.instance.pk %}ویرایش گروه{% else %}ایجاد گروه{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+          {% if form.instance.pk %}ویرایش گروه: {{ form.instance.name }}
+          {% else %}ایجاد گروه جدید{% endif %}
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="POST" class="row g-2">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          <!-- نام گروه -->
+          <div class="col-md-6">
+            {{ form.name.label_tag }}
+            {{ form.name|add_class:"form-control form-control-sm" }}
+            {% if form.name.errors %}
+              <div class="text-danger small">{{ form.name.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- توضیحات -->
+          <div class="col-md-6">
+            {{ form.description.label_tag }}
+            {{ form.description|add_class:"form-control form-control-sm" }}
+            {% if form.description.errors %}
+              <div class="text-danger small">{{ form.description.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- مضامین (چک‌باکس) -->
+          <div class="col-12">
+            <label class="form-label">مضامین:</label>
+            <div class="d-flex flex-wrap gap-2">
+              {% for checkbox in form.subjects %}
+                <div class="form-check">
+                  {{ checkbox.tag }}
+                  <label class="form-check-label">{{ checkbox.choice_label }}</label>
+                </div>
+              {% endfor %}
+            </div>
+            {% if form.subjects.errors %}
+              <div class="text-danger small">{{ form.subjects.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- دکمه‌ها -->
+          <div class="col-12 mt-2 d-flex gap-2">
+            <button type="submit" class="btn btn-success btn-sm">
+              <i class="bi bi-check-circle"></i>
+              {% if form.instance.pk %}ذخیره تغییرات{% else %}ثبت گروه{% endif %}
+            </button>
+            <a href="{% url 'subjectgroup_list' %}" class="btn btn-secondary btn-sm">
+              بازگشت به لیست گروه‌ها
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

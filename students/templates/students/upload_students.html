@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>آپلود شاگردان از فایل اکسل</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="file" class="form-label">انتخاب فایل اکسل (.xlsx)</label>
+            <input type="file" name="file" id="file" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">آپلود</button>
+    </form>
+
+    {% if messages %}
+        <div class="mt-3">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <a href="{% url 'student_list' %}" class="btn btn-secondary mt-3">بازگشت به لیست شاگردان</a>
+</div>
+{% endblock %}
+

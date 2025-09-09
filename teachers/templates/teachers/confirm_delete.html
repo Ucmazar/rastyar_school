@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}حذف معلم{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <h1 class="mb-2 text-danger">🛑 حذف معلم</h1>
+            <a href="{% url 'teacher_list' %}" class="btn btn-secondary btn-sm">
+                <i class="bi bi-arrow-left-circle"></i> بازگشت
+            </a>
+        </div>
+    </section>
+
+    <section class="content mt-2">
+        <div class="container-fluid">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body text-center">
+                    <h4>آیا مطمئن هستید که می‌خواهید معلم <strong>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</strong> را حذف کنید؟</h4>
+                    <form method="POST" class="mt-3">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">حذف 🗑</button>
+                        <a href="{% url 'teacher_list' %}" class="btn btn-secondary btn-sm">انصراف ❌</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+{% load grade_filters custom_tags attendance_tags %}
+
+<style>
+  /* حذف دکمه‌های بالا و پایین فقط برای input های نمره */
+  .grade-input::-webkit-outer-spin-button,
+  .grade-input::-webkit-inner-spin-button,
+  .attendance-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .grade-input, .attendance-input {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+</style>
+{% endblock %}
+
+{% block title %}ثبت نمرات{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5">📊 ثبت نمرات</h2>
+      {% if selected_class and selected_exam_type %}
+        <a href="{% url 'export_students_grades' %}?class={{ selected_class.id }}&exam_type={{ selected_exam_type.id }}"
+           class="btn btn-primary btn-sm">
+           <i class="bi bi-download"></i> خروجی اکسل نمرات
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- انتخاب کلاس و نوع امتحان -->
+    <form method="get" class="row g-3 mb-4">
+      <div class="col-md-6">
+        <label for="class" class="form-label fw-bold">انتخاب کلاس:</label>
+        <select name="class" id="class" class="form-select" onchange="this.form.submit()">
+          <option value="">-- انتخاب کنید --</option>
+          {% for cls in classes %}
+            <option value="{{ cls.id }}" {% if selected_class and cls.id|add:'0' == selected_class.id|add:'0' %}selected{% endif %}>
+              {{ cls.name }} - {{ cls.grade }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {% if selected_class %}
+        <div class="col-md-6">
+          <label for="exam_type" class="form-label fw-bold">نوع امتحان:</label>
+          <select name="exam_type" id="exam_type" class="form-select" onchange="this.form.submit()">
+            <option value="">-- انتخاب کنید --</option>
+            {% for exam in exam_types %}
+              <option value="{{ exam.id }}" 
+                {% if selected_exam_type and exam.id|add:'0' == selected_exam_type.id|add:'0' %}selected{% endif %}>
+                {{ exam.name }} - سال: {{ exam.academic_year }} ({{ exam.academic_year_days }} روز)
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+
+    </form>
+
+    {% if selected_class and selected_exam_type %}
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover table-bordered align-middle small">
+        <thead class="table-dark text-center">
+          <tr>
+            <th>شاگرد</th>
+            {% for subject in subjects %}
+              <th>{{ subject.name }}</th>
+            {% endfor %}
+            <th>حاضر</th>
+            <th>غایب</th>
+            <th>مریض</th>
+            <th>رخصت</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td><strong>{{ student.user.get_full_name }}</strong></td>
+
+            {% for subject in subjects %}
+            <td class="text-center">
+              <input type="number" step="0.01"
+                     class="form-control form-control-sm grade-input"
+                     data-student="{{ student.id }}"
+                     data-subject="{{ subject.id }}"
+                     value="{% for g in student.grades.all %}{% if g.subject == subject and g.school_class == selected_class and g.exam_type == selected_exam_type %}{{ g.score }}{% endif %}{% endfor %}">
+            </td>
+            {% endfor %}
+
+            <!-- ستون‌های حضور و غیاب -->
+            <td><input type="number" class="form-control form-control-sm attendance-input"
+                       data-student="{{ student.id }}" data-type="present"
+                       value="{{ attendance_data|get_attendance:student.id|attr:'present_days' }}" min="0"></td>
+            <td><input type="number" class="form-control form-control-sm attendance-input"
+                       data-student="{{ student.id }}" data-type="absent"
+                       value="{{ attendance_data|get_attendance:student.id|attr:'absent_days' }}" min="0"></td>
+            <td><input type="number" class="form-control form-control-sm attendance-input"
+                       data-student="{{ student.id }}" data-type="sick"
+                       value="{{ attendance_data|get_attendance:student.id|attr:'sick_days' }}" min="0"></td>
+            <td><input type="number" class="form-control form-control-sm attendance-input"
+                       data-student="{{ student.id }}" data-type="leave"
+                       value="{{ attendance_data|get_attendance:student.id|attr:'leave_days' }}" min="0"></td>
+
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="{{ subjects|length|add:'4' }}" class="text-center text-muted py-3">
+              🚫 هیچ شاگردی یافت نشد
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="btn btn-secondary btn-sm mt-3">
+      <i class="bi bi-arrow-left-circle"></i> بازگشت به داشبورد
+    </a>
+  </div>
+</div>
+
+<!-- JQuery و AJAX -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function(){
+      function send_ajax(studentId, subjectId, score, $input){
+          const classId = "{{ selected_class.id }}";
+          const examId = "{{ selected_exam_type.id }}";
+  
+          if(typeof subjectId === 'undefined' || subjectId === null){
+              console.error('subjectId undefined for student', studentId, $input);
+              alert('خطا: subject_id یافت نشد. کنسول را چک کنید.');
+              return;
+          }
+  
+          if(score === '') score = 0;
+  
+          const presentInput = $('input.attendance-input[data-student="'+studentId+'"][data-type="present"]');
+          const absentInput = $('input.attendance-input[data-student="'+studentId+'"][data-type="absent"]');
+          const sickInput = $('input.attendance-input[data-student="'+studentId+'"][data-type="sick"]');
+          const leaveInput = $('input.attendance-input[data-student="'+studentId+'"][data-type="leave"]');
+  
+          const present = presentInput.val() === '' ? 0 : presentInput.val();
+          const absent = absentInput.val() === '' ? 0 : absentInput.val();
+          const sick = sickInput.val() === '' ? 0 : sickInput.val();
+          const leave = leaveInput.val() === '' ? 0 : leaveInput.val();
+          
+          // دیباگ
+          console.log('AJAX payload', {studentId, subjectId, classId, examId, score, present, absent, sick, leave});
+  
+          let msg = $('<div class="ajax-msg small mt-1"></div>');
+          $input.after(msg);
+  
+          $.ajax({
+              url: "{% url 'grade_update_ajax' %}",
+              type: "POST",
+              data: {
+                  'student_id': studentId,
+                  'subject_id': subjectId,
+                  'class_id': classId,
+                  'exam_type_id': examId,
+                  'score': score,
+                  'present': present,
+                  'absent': absent,
+                  'sick': sick,
+                  'leave': leave,
+                  'csrfmiddlewaretoken': '{{ csrf_token }}'
+              },
+              success: function(response){
+                  if(response.success){
+                      msg.text('✔ ثبت شد').css('color','green').fadeOut(2000, function(){ $(this).remove(); });
+                  } else {
+                      msg.text('❌ خطا: ' + response.message).css('color','red').fadeOut(4000, function(){ $(this).remove(); });
+                  }
+              },
+              error: function(xhr, status, error){
+                  console.error('AJAX error', status, error, xhr.responseText);
+                  msg.text('❌ ثبت با مشکل مواجه شد!').css('color','red').fadeOut(4000, function(){ $(this).remove(); });
+              }
+          });
+      }
+  
+      // تغییر نمره
+      $('.grade-input').on('change', function(){
+          const $this = $(this);
+          const studentId = $this.data('student');
+          const subjectId = $this.data('subject');
+          const score = $this.val();
+          send_ajax(studentId, subjectId, score, $this);
+      });
+  
+      // تغییر حضور و غیاب
+      $('.attendance-input').on('change', function(){
+          const $this = $(this);
+          const studentId = $this.data('student');
+          const subjectId = $('.grade-input[data-student="'+studentId+'"]').first().data('subject');  
+          // 👆 اولین subject مربوط به شاگرد رو می‌گیریم تا خالی نمونه
+  
+          send_ajax(studentId, subjectId, 0, $this);  
+          // 👆 نمره اینجا مهم نیست، فقط attendance آپدیت میشه
+      });
+  });
+  </script>
+  
+  
+
+{% endblock %}

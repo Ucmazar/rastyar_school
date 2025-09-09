@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}داشبورد مدرسه{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="row g-3">
+
+      <!-- خوش آمد گویی -->
+      <div class="col-12">
+        <div class="alert alert-primary d-flex align-items-center" role="alert">
+          <i class="bi bi-person-badge me-2 fs-3"></i>
+          <div>
+            خوش آمدید، {{ user.get_full_name|default:user.username }}!
+            <br>
+            نقش شما: {{ user.get_role_display }}
+          </div>
+        </div>
+      </div>
+      <!-- کارت‌ها -->
+      <div class="col-md-3 col-sm-6">
+        <div class="card text-bg-info shadow-sm">
+          <div class="card-body d-flex align-items-center">
+            <i class="bi bi-people-fill fs-1 me-3"></i>
+            <div>
+              <h5 class="card-title">شاگردان</h5>
+              <p class="card-text">{{ student_count|default:"0" }}</p>
+              <a href="{% url 'student_list' %}" class="stretched-link text-white">مشاهده</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card text-bg-success shadow-sm">
+          <div class="card-body d-flex align-items-center">
+            <i class="bi bi-person-badge-fill fs-1 me-3"></i>
+            <div>
+              <h5 class="card-title">معلمان</h5>
+              <p class="card-text">{{ teacher_count|default:"0" }}</p>
+              <a href="{% url 'teacher_list' %}" class="stretched-link text-white">مشاهده</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card text-bg-warning shadow-sm">
+          <div class="card-body d-flex align-items-center">
+            <i class="bi bi-journal-text fs-1 me-3"></i>
+            <div>
+              <h5 class="card-title">مضامین</h5>
+              <p class="card-text">{{ subject_count|default:"0" }}</p>
+              <a href="{% url 'subject_list' %}" class="stretched-link text-dark">مشاهده</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card text-bg-primary shadow-sm">
+          <div class="card-body d-flex align-items-center">
+            <i class="bi bi-pencil-square fs-1 me-3"></i> <!-- آیکون برای نمرات -->
+            <div>
+              <h5 class="card-title">ثبت نمرات</h5>
+              <p class="card-text">شاگردان</p>
+              <a href="{% url 'grade_entry' %}" class="stretched-link text-white">شروع</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+      <!-- بخش اهداف / اهداف آینده -->
+      <div class="col-12 mt-3">
+        <div class="card shadow-sm border-info">
+          <div class="card-header bg-info text-white">
+            اهداف آینده
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                در در یک فایل اکسل که خروجی آن حاوی مشخصات شاگرد و نمرات آن است.
+              </li>
+              <li class="list-group-item">
+                و همین اکسل باید شامل شقه ضوابط جدول نتایج باید باشد و هین جداول باید کد گذاری شده باشد.
+              </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- بخش اعلان‌ها -->
+      <div class="col-12 mt-3">
+        <div class="card shadow-sm">
+          <div class="card-header">
+            اعلان‌ها
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <P>فردا باید دسترسی ها را به لینک یعنی بالای ویو ها باید گذاشت  با استفاده از مکسین یا اندکاتور</P>
+
+                <p>بخش مضامین را باید درست کنیم | بخش صنوف را اگر فرصت بود باید درست شود که انجام شد :-)</p>
+                <p>فردا انشاالله میرویم سراغ نمره دهی شاگردان</p>
+                <p>خب مرحله نمره دهی هم به پایان رسید.</p>
+                <p>مرحله تست است از اول تا آخر نتایج را باید تست کرد</p>
+                <p>بخش بعدی ایجاد شقه: یعنی صفحه ای باز شود، انتخاب صنف و نوعیت امتحان و بعدش بتوانم شقه و یا خروجی به
+                  شکل شقه بگیرم</p>
+                <p>اگر معلم لوگین بود، نیاز نیست معلم تعریف کند چون خودش معلم است؛ اگر مدیر بود، معلم تعریف کند</p>
+                <p>مشکل در قسمت مدیر وقتی صنوف داشته باشد در پرنت شقه فقط صنف آخر را در شقه می‌آورد حتی اگر صنف اول یا
+                  وسط انتخاب شده باشد؛ این باید اصلاح شود</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}

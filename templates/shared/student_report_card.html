@@ -1,0 +1,361 @@
+{% load static %}
+{% load jformat %}
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <title>کارنامه شاگرد</title>
+    <!-- در قسمت <head> قالب HTML -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        @page {
+            size: A4;
+            margin: 1mm;
+            /* حاشیه بالا، پایین، چپ و راست = 0.5cm */
+        }
+
+        body {
+            font-family: 'Vazirmatn', Tahoma, sans-serif;
+            /* استفاده از فونت وزیر */
+            direction: rtl;
+            text-align: center;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: auto;
+            padding: 5mm;
+            /* هماهنگ با حاشیه صفحه */
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .logo-left img,
+        .logo-right img {
+            height: 80px;
+            /* ارتفاع لوگو */
+        }
+
+        .header-text {
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        .exam-info {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <div class="page">
+        <!-- هدر -->
+
+        <div class="header">
+            <div class="logo-left">
+                <img src="{% static 'logos/maharef.png' %}" alt="لوگو">
+            </div>
+            <div class="header-text">
+                <div>ریاست معارف ولایت بلخ</div>
+                <div>آمریت معارف شهر</div>
+                <div>لیسه عالی خصوصی نیکان</div>
+            </div>
+            <div class="logo-right">
+                <img src="{% static 'logos/nikan.png' %}" alt="لوگو">
+            </div>
+        </div>
+
+
+        <!-- اطلاعات امتحان -->
+        <div class="exam-info" style="text-align: center; font-weight: bold; margin: 10px 0; font-size: 16px;">
+            {% if school_class %}
+            اطلاع نامه صنف: {{ school_class.name }} |
+            {% else %}
+            اطلاع نامه صنف: - |
+            {% endif %}
+
+            سال تعلیمی: {{ shamsi_year_approx }} هـ ش |
+            مطابق به {{ hijri_year_approx }} هـ ق
+
+
+        </div>
+
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid black; padding: 5px; text-align: center;">نام</th>
+                    <th style="border: 1px solid black; padding: 5px; text-align: center;">ولد</th>
+                    <th style="border: 1px solid black; padding: 5px; text-align: center;">ولدیت</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                        {{ student.user.first_name }} {{ student.user.last_name }}
+                    </td>
+                    <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                        {{ student.father_name }}
+                    </td>
+                    <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                        {{ student.grandfather_name }}
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+
+        <div style="display: flex; gap: 1mm; justify-content: flex-start; width: 100%;">
+            <!-- جدول مضامین -->
+            <table
+                style="width: 60%; border-collapse: collapse; margin-top: 0px; table-layout: fixed; text-align: center;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid black; padding: 5px;">مضمون</th>
+                        {% for exam in exam_types %}
+                        <th style="border: 1px solid black; padding: 5px;">{{ exam.name }}</th>
+                        {% endfor %}
+                        <th style="border: 1px solid black; padding: 5px;">مجموع</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+                    {% for subject in subject_scores %}
+                    <tr>
+                        <td style="border: 1px solid black; padding: 0px;">{{ subject.subject }}</td>
+                        {% for score in subject.scores %}
+                        <td style="border: 1px solid black; padding: 0px;">{{ score }}</td>
+                        {% endfor %}
+                        <td style="border: 1px solid black; padding: 0px;">{{ subject.total }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- ردیف مجموع هر امتحان -->
+                    <tr style="font-weight: bold; background-color: #f0f0f0;">
+                        <td style="border: 1px solid black; padding: 0px;">مجموع </td>
+                        {% for exam in exam_totals %}
+                        <td style="border: 1px solid black; padding: 0px;">{{ exam.total }}</td>
+                        {% endfor %}
+                        <td style="border: 1px solid black; padding: 0px;"></td>
+                    </tr>
+
+                    <!-- ردیف اوسط هر امتحان -->
+                    <tr style="font-weight: bold; background-color: #e0e0e0;">
+                        <td style="border: 1px solid black; padding: 0px;">اوسط </td>
+                        {% for exam in exam_totals %}
+                        <td style="border: 1px solid black; padding: 0px;">{{ exam.avg|floatformat:2 }}</td>
+                        {% endfor %}
+                        <td style="border: 1px solid black; padding: 0px;"></td>
+                    </tr>
+                    <tr style="font-weight: bold; background-color: #e0e0e0;">
+                        <td style="border: 1px solid black; padding: 0px;">نتیجه </td>
+                        {% for exam in exam_totals %}
+                        <td style="border: 1px solid black; padding: 0px;">{{ exam.grade }}</td>
+                        {% endfor %}
+                        <td style="border: 1px solid black; padding: 0px;"></td>
+                    </tr>
+
+                    <!-- ردیف درصد کل -->
+                    <tr style="font-weight: bold; background-color: #d0d0d0;">
+                        <td style="border: 1px solid black; padding: 5px;">فیصدی</td>
+                        <td colspan="{{ colspan_count }}" style="border: 1px solid black; padding: 5px;">
+                            {{ avg_score|floatformat:2 }}
+                        </td>
+                    </tr>
+
+                    <!-- ردیف نتیجه -->
+                    <tr style="font-weight: bold; background-color: #c0c0c0;">
+                        <td style="border: 1px solid black; padding: 5px;">نتیجه</td>
+                        <td colspan="{{ colspan_count }}" style="border: 1px solid black; padding: 5px;">
+                            {{ grade_letter }}
+                        </td>
+                    </tr>
+                </tbody>
+
+
+            </table>
+
+            <!-- جدول ضوابط و جدول اوسط نمرات -->
+            <div style="display: flex; flex-direction: column; gap: 1mm; width: 60%;">
+                <!-- جدول ضوابط -->
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid black; width: 10%;">ضوابط</th>
+                            <th style="border: 1px solid black; width: 10%;">4/5 ماهه</th>
+                            <th style="border: 1px solid black; width: 10%;">سالانه</th>
+                            <th style="border: 1px solid black; width: 10%;">مجموعه</th>
+                            <th style="border: 1px solid black; width: 20%;">
+                                تصویر
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid black;">حاضر</td>
+                            <td style="border: 1px solid black;">101</td>
+                            <td style="border: 1px solid black;">95</td>
+                            <td style="border: 1px solid black;">196</td>
+                            <td style="border: 1px solid black;" rowspan="4">
+
+                                <img src="{% static 'profile/profile_pic.webp' %}"
+                                    style="width: 100%; height: 100%; object-fit: cover;">
+
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">غیر حاضر</td>
+                            <td style="border: 1px solid black;">90</td>
+                            <td style="border: 1px solid black;">85</td>
+                            <td style="border: 1px solid black;">175</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">مریض</td>
+                            <td style="border: 1px solid black;">101</td>
+                            <td style="border: 1px solid black;">95</td>
+                            <td style="border: 1px solid black;">196</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">رخصت</td>
+                            <td style="border: 1px solid black;">90</td>
+                            <td style="border: 1px solid black;">85</td>
+                            <td style="border: 1px solid black;">175</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- جدول اوسط نمرات چهارنیم ماهه -->
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 1mm;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid black;  width: 80%;">اوسط امتحانات چهارنیم ماهه</th>
+                            <th style="border: 1px solid black;  width: 20%;">نیجه</th>
+                            <th style="border: 1px solid black;  width: 20%;">درجه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid black;">از 36 الی 40</td>
+                            <td style="border: 1px solid black;" rowspan="4">موفق</td>
+                            <td style="border: 1px solid black;">الف</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">از 36 الی 40</td>
+                            <td style="border: 1px solid black;">ب</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">از 36 الی 40</td>
+                            <td style="border: 1px solid black;">ج</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">از 36 الی 40</td>
+                            <td style="border: 1px solid black;">د</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 1mm;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid black; width: 80%;">اوسط امتحانات سالانه</th>
+                            <th style="border: 1px solid black; width: 20%;">نیجه</th>
+                            <th style="border: 1px solid black; width: 20%;">درجه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid black;">از 90 الی 100</td>
+                            <td style="border: 1px solid black;" rowspan="4">موفق</td>
+                            <td style="border: 1px solid black;">الف</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">از 75 الی 89.99</td>
+                            <td style="border: 1px solid black;">ب</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">از 60 الی 76.99</td>
+                            <td style="border: 1px solid black;">ج</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black;">از 50 الی 59.99</td>
+                            <td style="border: 1px solid black;">د</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; font-size: 10px;">آنکه اوسط نمرات او مساوی و بالاتر از
+                                50 باشد و در یک الی سه مضمون نمره کمتر از 40 اخذ نماید.</td>
+                            <td style="border: 1px solid black;">مشروط</td>
+                            <td style="border: 1px solid black;">هـ</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; font-size: 10px;">آنکه اوسط نمرات او از 49.99و یا کمتر
+                                از سه مضمون کمتر از 40 نمره اخذ نموده باشد</td>
+                            <td style="border: 1px solid black;">مشروط</td>
+                            <td style="border: 1px solid black;">هـ</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 1mm;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid black; width: 40%;">تائید و امضاء</th>
+                            <th style="border: 1px solid black; width: 30%;">امتحان چهارنیم ماهه</th>
+                            <th style="border: 1px solid black; width: 30%;">سالانه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid black; height: 1.5cm;">نگران صنف</td>
+                            <td style="border: 1px solid black; height: 1.5cm;"> </td>
+                            <td style="border: 1px solid black; height: 1.5cm;"> </td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; height: 1.5cm;">معاون تدریسی</td>
+                            <td style="border: 1px solid black; height: 1.5cm;"></td>
+                            <td style="border: 1px solid black; height: 1.5cm;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; height: 1.5cm;">مدیر مکتب</td>
+                            <td style="border: 1px solid black; height: 1.5cm;"></td>
+                            <td style="border: 1px solid black; height: 1.5cm;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; height: 1.5cm;">امضاء ولی شاگرد</td>
+                            <td style="border: 1px solid black; height: 1.5cm;"></td>
+                            <td style="border: 1px solid black; height: 1.5cm;"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <!-- اسکریپت باز کردن پرینت -->
+<script>
+    window.addEventListener('load', function() {
+        window.print();  // باز کردن پنجره پرینت وقتی صفحه کامل لود شد
+    });
+</script>
+</body>
+
+</html>

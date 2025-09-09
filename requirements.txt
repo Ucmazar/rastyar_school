@@ -1,0 +1,61 @@
+# جنگو و ابزارهای پایه
+Django==4.2.23
+django-crispy-forms==2.4
+crispy-bootstrap5==2025.6
+
+# پایگاه داده و ORM
+asgiref==3.8.1
+sqlparse==0.5.3
+
+# پردازش داده و اکسل
+pandas==2.0.3
+openpyxl==3.1.5
+numpy==1.24.4
+et_xmlfile==2.0.0
+lxml==6.0.1
+
+# تولید QR و تصویر
+qrcode==7.4.2
+Pillow==10.4.0
+reportlab==4.4.3
+pyphen==0.16.0
+pypng==0.20220715.0
+svglib==1.5.1
+
+# تاریخ شمسی و میلادی
+jdatetime==5.0.0
+jalali_core==1.0.0
+Khayyam==3.0.17
+python-dateutil==2.9.0.post0
+pytz==2025.2
+tzdata==2025.2
+tzlocal==5.2
+
+# امنیت و ابزارهای کمکی
+cryptography==45.0.7
+asn1crypto==1.5.1
+cffi==1.17.1
+pycparser==2.22
+oscrypto==1.3.0
+pyHanko==0.27.1
+pyhanko-certvalidator==0.26.8
+pydyf==0.11.0
+PyYAML==6.0.2
+arabic-reshaper==3.0.0
+defusedxml==0.7.1
+Brotli==1.1.0
+zopfli==0.2.3.post1
+fonttools==4.57.0
+html5lib==1.1
+cssselect2==0.7.0
+idna==3.10
+click==8.1.8
+colorama==0.4.6
+urllib3==2.2.3
+requests==2.32.4
+webencodings==0.5.1
+websocket-client==1.8.0
+wheel==0.45.1
+
+# PDF و wkhtml
+wkhtmltopdf==0.2

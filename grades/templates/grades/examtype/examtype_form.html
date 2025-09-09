@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>فرم امتحان</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">ذخیره</button>
+    <a href="{% url 'examtype_list' %}" class="btn btn-secondary">انصراف</a>
+</form>
+{% endblock %}

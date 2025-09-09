@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}ویرایش{% else %}ایجاد{% endif %} مضمون</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary mt-2">{% if form.instance.pk %}ویرایش{% else %}ذخیره{% endif %}</button>
+    </form>
+    <a href="{% url 'subject_list' %}" class="btn btn-secondary mt-2">بازگشت به لیست مضامین</a>
+</div>
+{% endblock %}

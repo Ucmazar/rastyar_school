@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-danger">حذف گروه مضمون</h2>
+    <p>آیا مطمئن هستید که می‌خواهید گروه مضمون <strong>{{ object.name }}</strong> را حذف کنید؟</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+        <a href="{% url 'subjectgroup_list' %}" class="btn btn-secondary">انصراف</a>
+    </form>
+</div>
+{% endblock %}

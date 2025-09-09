@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load jformat %}
+{% load form_tags %}
+
+{% block title %}
+  {% if student %}ویرایش شاگرد{% else %}ایجاد شاگرد{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+          {% if student %}ویرایش شاگرد: {{ student.user.first_name }} {{ student.user.last_name }}
+          {% else %}ایجاد شاگرد جدید{% endif %}
+        </h5>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" class="row g-2">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          <!-- فیلدهای اصلی -->
+          <div class="col-md-6">
+            {{ form.first_name.label_tag }}
+            {{ form.first_name|add_class:"form-control form-control-sm" }}
+            {% if form.first_name.errors %}
+              <div class="text-danger small">{{ form.first_name.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.father_name.label_tag }}
+            {{ form.father_name|add_class:"form-control form-control-sm" }}
+            {% if form.father_name.errors %}
+              <div class="text-danger small">{{ form.father_name.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.grandfather_name.label_tag }}
+            {{ form.grandfather_name|add_class:"form-control form-control-sm" }}
+            {% if form.grandfather_name.errors %}
+              <div class="text-danger small">{{ form.grandfather_name.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.student_number.label_tag }}
+            {{ form.student_number|add_class:"form-control form-control-sm" }}
+            {% if form.student_number.errors %}
+              <div class="text-danger small">{{ form.student_number.errors }}</div>
+            {% endif %}
+          </div>
+
+          <hr class="my-2">
+
+          <!-- فیلدهای اختیاری -->
+          <div id="optionalFields" style="display: none;" class="row g-2">
+            <div class="col-md-6">
+              {{ form.last_name.label_tag }}
+              {{ form.last_name|add_class:"form-control form-control-sm" }}
+              {% if form.last_name.errors %}
+                <div class="text-danger small">{{ form.last_name.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              {{ form.phone.label_tag }}
+              {{ form.phone|add_class:"form-control form-control-sm" }}
+              {% if form.phone.errors %}
+                <div class="text-danger small">{{ form.phone.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              {{ form.date_of_birth.label_tag }}
+              {{ form.date_of_birth|add_class:"form-control form-control-sm" }}
+              {% if form.instance.date_of_birth %}
+                <small class="form-text text-muted">
+                  تاریخ هجری شمسی: {{ form.instance.date_of_birth|jformat:"%Y/%m/%d" }}
+                </small>
+              {% endif %}
+              {% if form.date_of_birth.errors %}
+                <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-6">
+              {{ form.address.label_tag }}
+              {{ form.address|add_class:"form-control form-control-sm" }}
+              {% if form.address.errors %}
+                <div class="text-danger small">{{ form.address.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- دکمه‌ها -->
+          <div class="col-12 mt-2 d-flex gap-2">
+            <button type="submit" class="btn btn-success btn-sm">
+              <i class="bi bi-check-circle"></i>
+              {% if student %}ذخیره تغییرات{% else %}ثبت شاگرد{% endif %}
+            </button>
+            <a href="{% url 'student_list' %}" class="btn btn-secondary btn-sm">
+              بازگشت به لیست شاگردان
+            </a>
+            <button type="button" class="btn btn-info btn-sm" id="toggleOptionalFields">
+              نمایش فیلدهای اختیاری
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS برای نمایش/پنهان کردن فیلدهای اختیاری -->
+<script>
+  document.getElementById("toggleOptionalFields").addEventListener("click", function () {
+    const optionalDiv = document.getElementById("optionalFields");
+    if (optionalDiv.style.display === "none") {
+      optionalDiv.style.display = "flex";
+      this.textContent = "پنهان کردن فیلدهای اختیاری";
+    } else {
+      optionalDiv.style.display = "none";
+      this.textContent = "نمایش فیلدهای اختیاری";
+    }
+  });
+</script>
+{% endblock %}

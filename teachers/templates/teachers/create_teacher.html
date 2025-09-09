@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load form_tags %}
+{% load jformat %}
+
+{% block title %}
+  {% if teacher %}ویرایش معلم{% else %}ایجاد معلم{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+            {% if teacher %}ویرایش معلم: {{ teacher.user.first_name }} {{ teacher.user.last_name }}
+            {% else %}ایجاد معلم جدید{% endif %}
+          </h5>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" class="row g-2">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          <!-- فیلدهای اصلی -->
+          <div class="col-md-6">
+            {{ form.first_name.label_tag }}
+            {{ form.first_name|add_class:"form-control form-control-sm" }}
+            {% if form.first_name.errors %}
+              <div class="text-danger small">{{ form.first_name.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.father_name.label_tag }}
+            {{ form.father_name|add_class:"form-control form-control-sm" }}
+            {% if form.father_name.errors %}
+              <div class="text-danger small">{{ form.father_name.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.last_name.label_tag }}
+            {{ form.last_name|add_class:"form-control form-control-sm" }}
+            {% if form.last_name.errors %}
+              <div class="text-danger small">{{ form.last_name.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.phone.label_tag }}
+            {{ form.phone|add_class:"form-control form-control-sm" }}
+            {% if form.phone.errors %}
+              <div class="text-danger small">{{ form.phone.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-6">
+            <label>مضامین:</label>
+            <div class="d-flex flex-wrap gap-2">
+              {% for checkbox in form.subjects %}
+                <div class="form-check">
+                  {{ checkbox.tag }}
+                  {{ checkbox.choice_label }}
+                </div>
+              {% endfor %}
+            </div>
+            {% if form.subjects.errors %}
+              <div class="text-danger small">{{ form.subjects.errors }}</div>
+            {% endif %}
+          </div>
+          
+          
+            <div class="col-6">
+              {{ form.address.label_tag }}
+              {{ form.address|add_class:"form-control form-control-sm" }}
+              {% if form.address.errors %}
+                <div class="text-danger small">{{ form.address.errors }}</div>
+              {% endif %}
+            </div>
+            
+          <div class="col-md-6">
+            {{ form.date_of_birth.label_tag }}
+            {{ form.date_of_birth|add_class:"form-control form-control-sm" }}
+            {% if form.instance.date_of_birth %}
+              <small class="form-text text-muted">
+                تاریخ هجری شمسی: {{ form.instance.date_of_birth|jformat:"%Y/%m/%d" }}
+              </small>
+            {% endif %}
+            {% if form.date_of_birth.errors %}
+              <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- دکمه‌ها -->
+          <div class="col-12 mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-success btn-sm">
+              <i class="bi bi-check-circle"></i> ذخیره تغییرات
+            </button>
+            <a href="{% url 'teacher_list' %}" class="btn btn-secondary btn-sm">
+              <i class="bi bi-x-circle"></i> لغو
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

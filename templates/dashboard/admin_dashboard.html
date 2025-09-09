@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}داشبورد مدیر{% endblock %}
+
+{% block sidebarWrapper %}
+<div class="sidebar-wrapper">
+  <nav class="mt-2">
+      <!--begin::Sidebar Menu-->
+      <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu"
+          data-accordion="false">
+          <li class="nav-item">
+              <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-speedometer"></i>
+                  <p>
+                      گزینه ها
+                      <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+              </a>
+              <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                      <a href="{% url 'user-list' %}" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>نمایش کاربران</p>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="{% url 'subject_list' %}" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>مضامین</p>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="{% url 'student_list' %}" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>لیست شاگردان</p>
+                      </a>
+                  </li>
+              </ul>
+          </li>
+          <li class="nav-item">
+              <a href="../generate/theme.html" class="nav-link">
+                  <i class="nav-icon bi bi-palette"></i>
+                  <p>Theme Generate</p>
+              </a>
+          </li>
+          <li class="nav-item">
+              <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-box-seam-fill"></i>
+                  <p>
+                      Widgets
+                      <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+              </a>
+              <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                      <a href="../widgets/small-box.html" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>Small Box</p>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="../widgets/info-box.html" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>Info Box</p>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="../widgets/cards.html" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>Cards</p>
+                      </a>
+                  </li>
+              </ul>
+          </li>
+      </ul>
+      <!--end::Sidebar Menu-->
+  </nav>
+</div>
+{% endblock %}
+
+
+{% block content %}
+  <div class="app-content">
+    <!--begin::Container-->
+    <div class="container-fluid">
+      <!--begin::Row-->
+      <div class="row">
+        <div class="col-12">
+          <!-- Default box -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">داشبورد مدیر</h3>
+              <div class="card-tools">
+                <!-- افزدون اپشن ها دیگر -->
+              </div>
+            </div>
+            <div class="card-body">
+                <p>به بخش مدیریت خوش آمدید، {{ user.username | capfirst }}!</p>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">Footer</div>
+            <!-- /.card-footer-->
+          </div>
+          <!-- /.card -->
+        </div>
+      </div>
+      <!--end::Row-->
+    </div>
+    <!--end::Container-->
+  </div>
+
+  {% endblock %}
+  

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}ویرایش پروفایل{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="card shadow-sm mt-2">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">ویرایش پروفایل</h5>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" class="row g-3">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          <!-- نام -->
+          <div class="col-md-6">
+            {{ form.first_name.label_tag }}
+            {{ form.first_name|add_class:"form-control form-control-sm" }}
+            {% for error in form.first_name.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- نام خانوادگی -->
+          <div class="col-md-6">
+            {{ form.last_name.label_tag }}
+            {{ form.last_name|add_class:"form-control form-control-sm" }}
+            {% for error in form.last_name.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+
+
+          <!-- نام پدر -->
+          <div class="col-md-6">
+            {{ form.father_name.label_tag }}
+            {{ form.father_name|add_class:"form-control form-control-sm" }}
+            {% for error in form.father_name.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- شماره تماس -->
+          <div class="col-md-6">
+            {{ form.phone.label_tag }}
+            {{ form.phone|add_class:"form-control form-control-sm" }}
+            {% for error in form.phone.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- تاریخ تولد -->
+          <div class="col-md-6">
+            {{ form.date_of_birth.label_tag }}
+            {{ form.date_of_birth|add_class:"form-control form-control-sm" }}
+            {% for error in form.date_of_birth.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          
+          <!-- مضامین --><!-- مضامین -->
+          <div class="col-6">
+            <label>{{ form.subjects.label }}</label>
+
+            {% if form.fields.subjects.queryset.exists %}
+                <div class="d-flex flex-wrap gap-2 border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
+                    {% for checkbox in form.subjects %}
+                        <div class="form-check" style="min-width: 150px;">
+                            {{ checkbox.tag }}
+                            <label class="form-check-label">{{ checkbox.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-primary small mt-1">
+                    لطفاً ابتدا مضمونی که تدریس میکنید را در بخش مضامین ثبت کنید.
+                </div>
+            {% endif %}
+
+            {% if form.subjects.errors %}
+                <div class="text-danger small mt-1">{{ form.subjects.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- آدرس -->
+          <div class="col-md-12">
+            {{ form.address.label_tag }}
+            {{ form.address|add_class:"form-control form-control-sm" }}
+            {% for error in form.address.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          
+
+
+          <!-- دکمه ذخیره -->
+          <div class="col-12 mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-success btn-sm">
+              <i class="bi bi-check-circle"></i> ذخیره تغییرات
+            </button>
+            <a href="{% url 'class_list' %}" class="btn btn-secondary btn-sm">
+              بازگشت
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

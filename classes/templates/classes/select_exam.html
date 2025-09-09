@@ -1,0 +1,12 @@
+<h2>انتخاب امتحان برای کلاس {{ school_class.name }}</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="exam_id">انتخاب امتحان:</label>
+    <select name="exam_id" id="exam_id" required>
+        <option value="">-- انتخاب امتحان --</option>
+        {% for exam in exams %}
+        <option value="{{ exam.id }}">{{ exam.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">نمایش شقه</button>
+</form>

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load jformat %}
+{% load static %}
+
+{% block title %}لیست معلمین{% endblock %}
+
+{% block content %}
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5">📚 لیست معلمین</h2>
+      <a href="{% url 'create_teacher' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle"></i> افزودن معلم جدید
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover table-bordered align-middle small">
+        <thead class="table-dark">
+          <tr>
+            <th>شماره</th>
+            <th>نام کامل</th>
+            <th>نام پدر</th>
+            <th>شماره تماس</th>
+            <th>آدرس</th>
+            <th>مضامین</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for teacher in teachers %}
+          <tr>
+            <!-- شماره مسلسل -->
+            <td>{{ forloop.counter }}</td>
+
+            <!-- نام کامل -->
+            <td>
+              <a href="{% url 'teacher_profile' teacher.id %}">
+                <strong>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</strong>
+              </a>
+            </td>
+            
+            <!-- نام پدر -->
+            <td>{{ teacher.father_name|default:"-" }}</td>
+
+            <!-- شماره تماس -->
+            <td>{{ teacher.phone|default:"-" }}</td>
+
+            <!-- آدرس -->
+            <td>{{ teacher.address|default:"-" }}</td>
+
+            <!-- مضامین -->
+            <td>
+              {% if teacher.subjects.all %}
+                {% for subject in teacher.subjects.all %}
+                  <span class="badge bg-info text-dark">{{ subject.name }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">-</span>
+              {% endif %}
+            </td>
+
+            <!-- عملیات -->
+            <td>
+              <a href="{% url 'edit_teacher' pk=teacher.id %}" class="btn btn-sm btn-warning mb-1">
+                <i class="bi bi-pencil-square"></i> ویرایش
+              </a>
+              <a href="{% url 'delete_teacher' pk=teacher.id %}" class="btn btn-sm btn-danger mb-1">
+                <i class="bi bi-trash"></i> حذف
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-3">
+              🚫 هیچ معلمی یافت نشد
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <a href="{% url 'home' %}" class="btn btn-secondary btn-sm mt-3">
+      <i class="bi bi-arrow-left-circle"></i> بازگشت به داشبورد
+    </a>
+  </div>
+</div>
+{% endblock %}
