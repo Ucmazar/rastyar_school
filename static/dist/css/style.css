@@ -1,0 +1,28 @@
+@font-face {
+    font-family: 'Yekan';
+    src: url("{% static 'fonts/Vazirmatn-Medium.woff2' %}") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Yekan', sans-serif;
+}
+
+    #userTable {
+        font-size: 12px;  /* اندازه فونت دلخواه، می‌توانید کمتر یا بیشتر کنید */
+    }
+
+    /* کوچک کردن فونت هدرها */
+    #userTable thead th {
+        font-size: 12px;
+    }
+
+    /* کوچک کردن فونت ردیف‌ها */
+    #userTable tbody td {
+        font-size: 12px;
+    }
+
+
+
+    
